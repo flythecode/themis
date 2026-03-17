@@ -6,7 +6,7 @@ import { TR } from './i18n.js';
 import { applyLang, t, esc, showToast, grow, setUILang } from './ui.js';
 import {
   initChat, quickChat, loadHistChat, sendMsg, onKey, triggerAtt,
-  onFile, clearImgPrev, toggleMic, doCopy, doStar, setLangChat,
+  onFile, clearImgPrev, toggleMic, doCopy, doStar, downloadDoc, setLangChat,
   setCountryChat, updateCountryUI, restoreState, getMode, getLang, getCountry
 } from './chat.js';
 
@@ -35,6 +35,7 @@ window.themis = {
   clearImgPrev,
   doCopy,
   doStar,
+  downloadDoc,
   openEsc: () => document.getElementById('esc-modal').classList.add('on'),
 };
 
@@ -67,6 +68,7 @@ function finishOb() {
   const c = document.getElementById('ob-country').value.trim() || 'Montenegro';
   setCountryChat(c);
   applyLang(getLang());
+  storage.setOnboarded();
   document.getElementById('s-ob').classList.remove('on');
   document.getElementById('s-main').classList.add('on');
   renderHomeRecent();
@@ -259,3 +261,9 @@ renderHomeRecent();
 updateStats();
 document.querySelectorAll('.ob-lbtn').forEach(b => b.classList.toggle('on', b.dataset.lang === initialLang));
 document.querySelectorAll('.lopt').forEach(b => b.classList.toggle('on', b.dataset.lang === initialLang));
+
+// Пропустить онбординг если уже проходил
+if (storage.isOnboarded()) {
+  document.getElementById('s-ob').classList.remove('on');
+  document.getElementById('s-main').classList.add('on');
+}

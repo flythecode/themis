@@ -204,9 +204,11 @@ export function addBubble(role, text, fmtFlag, save = true) {
     const acts = document.createElement('div');
     acts.className = 'msg-act-row';
     const showLawyer = mode === 'advise' || mode === 'analyze';
+    const showDownload = mode === 'generate';
     acts.innerHTML =
       `<div class="mact" onclick="window.themis.doCopy(this,'${encodeURIComponent(plain)}')">${t('copyTxt')}</div>` +
       `<div class="mact" onclick="window.themis.doStar(this,'${encodeURIComponent(text)}')">${t('starTxt')}</div>` +
+      (showDownload ? `<div class="mact" onclick="window.themis.downloadDoc('${encodeURIComponent(plain)}')">${t('downloadTxt')}</div>` : '') +
       (showLawyer ? `<div class="mact" onclick="window.themis.openEsc()">${t('lawyerTxt')}</div>` : '');
     wrap.appendChild(acts);
     let pressTimer;
@@ -348,6 +350,21 @@ export function doStar(btn, enc) {
     btn.classList.add('on');
     showToast(t('starTxt'));
   }
+}
+
+/* ── Download document ── */
+export function downloadDoc(enc) {
+  const text = decodeURIComponent(enc);
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `themis_${lang === 'ru' ? 'документ' : 'document'}_${new Date().toISOString().slice(0, 10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(lang === 'ru' ? 'Документ скачан' : 'Document downloaded');
 }
 
 /* ── Keyboard ── */

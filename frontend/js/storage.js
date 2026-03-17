@@ -55,6 +55,10 @@ export const storage = {
     ls.set('saved', storage.getSaved().filter(s => s.id !== id));
   },
 
+  // Onboarding
+  isOnboarded: () => ls.get('onboarded') === true,
+  setOnboarded: () => ls.set('onboarded', true),
+
   // State (docs count etc.)
   getState: () => ls.get('state') || {},
   setState: s => ls.set('state', s),

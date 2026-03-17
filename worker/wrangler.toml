@@ -1,0 +1,16 @@
+name = "themis-proxy"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[vars]
+ALLOWED_ORIGIN = "https://flythecode.github.io"
+BACKEND_URL = "https://themis-backend.up.railway.app"
+UPGRADE_URL = "https://t.me/ThemisLegalBot?start=upgrade"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "6dbbdf82a7b943e8b81add5b3cf58049"
+
+# Секреты (добавлять только через CLI, не в файл):
+# wrangler secret put ANTHROPIC_API_KEY
+# wrangler secret put INTERNAL_TOKEN

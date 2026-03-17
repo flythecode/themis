@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Themis</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- ═══════════ ONBOARDING ═══════════ -->
+<div class="scr on" id="s-ob">
+  <div class="ob-bg">
+    <div class="ob-halo"></div>
+    <div class="ob-ring ob-r1"></div>
+    <div class="ob-ring ob-r2"></div>
+    <div class="ob-ring ob-r3"></div>
+    <div class="ob-grid"></div>
+    <svg style="position:absolute;top:28px;left:50%;transform:translateX(-50%);width:190px;opacity:.06" viewBox="0 0 200 180" fill="none">
+      <line x1="100" y1="18" x2="100" y2="100" stroke="#c9a84c" stroke-width="2"/>
+      <line x1="28" y1="58" x2="172" y2="58" stroke="#c9a84c" stroke-width="2"/>
+      <line x1="28" y1="58" x2="48" y2="112" stroke="#c9a84c" stroke-width="1.5"/>
+      <line x1="172" y1="58" x2="152" y2="112" stroke="#c9a84c" stroke-width="1.5"/>
+      <ellipse cx="48" cy="120" rx="28" ry="12" stroke="#c9a84c" stroke-width="1.5"/>
+      <ellipse cx="152" cy="120" rx="28" ry="12" stroke="#c9a84c" stroke-width="1.5"/>
+      <circle cx="100" cy="18" r="5" stroke="#c9a84c" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <div class="ob-emblem">
+    <div class="ob-theta">Θ</div>
+    <div class="ob-tagline">Themis · Legal AI</div>
+  </div>
+
+  <div class="ob-sheet">
+    <div class="ob-handle"></div>
+    <div class="ob-title">Ваши права —<br><em>под защитой</em></div>
+    <div class="ob-sub">Анализирую документы, составляю претензии и объясняю что делать — на понятном языке.</div>
+
+    <div class="ob-feats">
+      <div class="ob-feat">
+        <div class="ob-feat-ico">⚖️</div>
+        <div class="ob-feat-txt">
+          <strong data-k="feat1t">Анализ документов</strong>
+          <span data-k="feat1d">Риски в договорах, штрафах, уведомлениях</span>
+        </div>
+      </div>
+      <div class="ob-feat">
+        <div class="ob-feat-ico">📜</div>
+        <div class="ob-feat-txt">
+          <strong data-k="feat2t">Составляю документы</strong>
+          <span data-k="feat2d">Претензии и жалобы за 2 минуты</span>
+        </div>
+      </div>
+      <div class="ob-feat">
+        <div class="ob-feat-ico">🗺️</div>
+        <div class="ob-feat-txt">
+          <strong data-k="feat3t">План действий</strong>
+          <span data-k="feat3d">Конкретные шаги с дедлайнами</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-lang">
+      <button class="ob-lbtn on" onclick="setLang('ru',this)" data-lang="ru">🇷🇺 Русский</button>
+      <button class="ob-lbtn" onclick="setLang('en',this)" data-lang="en">🇬🇧 English</button>
+    </div>
+
+    <div class="ob-field">
+      <label data-k="countryLbl">🌍 Страна:</label>
+      <input type="text" id="ob-country" placeholder="Укажите страну..." value="Черногория">
+    </div>
+
+    <button class="ob-cta" onclick="finishOb()" data-k="obCta">Начать бесплатно →</button>
+    <div class="ob-disc" data-k="obDisc">Предоставляем информацию, не юридическую консультацию</div>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="scr" id="s-main">
+  <div class="tc">
+
+    <!-- HOME -->
+    <div class="tp on" id="tp-home">
+      <div class="h-head">
+        <div class="h-logo">Them<span>is</span></div>
+        <div class="ltoggle">
+          <div class="lopt on" onclick="setLang('ru',this)" data-lang="ru">RU</div>
+          <div class="lopt" onclick="setLang('en',this)" data-lang="en">EN</div>
+        </div>
+      </div>
+      <div class="h-scroll">
+
+        <div class="h-hero">
+          <h2 data-k="heroTitle">Чем могу помочь сегодня?</h2>
+          <p data-k="heroSub">Нажмите на режим — сразу начнём разбирать вашу ситуацию.</p>
+          <div class="h-cpill" onclick="askCountry()">
+            🌍 <strong id="country-lbl">Черногория</strong>&nbsp;· <span data-k="changeTxt">изменить</span>
+          </div>
+        </div>
+
+        <div class="slabel" data-k="modeLabel">Выберите режим</div>
+        <div class="mlist">
+          <div class="mrow sel" data-mode="analyze" onclick="quickChat(this)">
+            <div class="mrow-ico">⚖️</div>
+            <div class="mrow-txt">
+              <strong data-k="m1t">Анализ документа</strong>
+              <span data-k="m1s">Риски, нарушения, рекомендации</span>
+            </div>
+            <div class="mrow-arr">›</div>
+          </div>
+          <div class="mrow" data-mode="generate" onclick="quickChat(this)">
+            <div class="mrow-ico">📜</div>
+            <div class="mrow-txt">
+              <strong data-k="m2t">Составить документ</strong>
+              <span data-k="m2s">Претензия, жалоба, заявление</span>
+            </div>
+            <div class="mrow-arr">›</div>
+          </div>
+          <div class="mrow" data-mode="advise" onclick="quickChat(this)">
+            <div class="mrow-ico">🗺️</div>
+            <div class="mrow-txt">
+              <strong data-k="m3t">Юридический совет</strong>
+              <span data-k="m3s">Ситуация → конкретный план</span>
+            </div>
+            <div class="mrow-arr">›</div>
+          </div>
+        </div>
+
+        <div class="slabel" data-k="recentLabel">Недавние чаты</div>
+        <div class="rlist" id="home-recent"></div>
+
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="tp" id="tp-chat">
+      <div class="chtop">
+        <div class="chback" onclick="goHome()">‹</div>
+        <div class="cmpill cm-a" id="ch-badge">⚖️ <span data-k="modeAnalyze">Анализ</span></div>
+        <div class="chtag" id="ch-ctag">Черногория</div>
+      </div>
+      <div id="img-prev-area"></div>
+      <div class="chquick" id="ch-chips"></div>
+      <div class="msgs" id="msgs"></div>
+      <div class="inpwrap">
+        <div class="inprow">
+          <button class="ibtn ibtn-att" id="att-btn" onclick="triggerAtt()" title="Документ">📎</button>
+          <textarea id="inp" rows="1" placeholder="Опишите ситуацию..." onkeydown="onKey(event)" oninput="grow(this)"></textarea>
+          <button class="ibtn ibtn-mic" id="mic-btn" onclick="toggleMic()">🎤</button>
+          <button class="ibtn ibtn-send" id="sbtn" onclick="sendMsg()">↑</button>
+        </div>
+        <div class="inpdisc" data-k="disc">Themis — информация, не юридическая консультация</div>
+      </div>
+      <input type="file" id="file-inp" accept="image/*" capture="environment" onchange="onFile(event)">
+    </div>
+
+    <!-- HISTORY -->
+    <div class="tp" id="tp-history">
+      <div class="hh">
+        <div class="hh-title" data-k="histTitle">История</div>
+        <div class="hsearch">
+          <span>⌕</span>
+          <input type="text" id="hsearch-inp" placeholder="Поиск..." oninput="filterHist(this.value)">
+        </div>
+      </div>
+      <div class="htabs">
+        <div class="htab on" onclick="showHTab('all',this)" data-k="tabAll">Все</div>
+        <div class="htab" onclick="showHTab('starred',this)" data-k="tabSaved">Сохранённые ⭐</div>
+      </div>
+      <div class="hscroll" id="hist-list"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="tp" id="tp-profile">
+      <div class="ph">
+        <div class="pavatar" id="p-av">Θ</div>
+        <div>
+          <div class="pname" id="p-name">Пользователь</div>
+          <div class="pplan">⚖ <span data-k="freePlan">Бесплатный план</span></div>
+        </div>
+      </div>
+      <div class="pscroll">
+        <div class="pstats">
+          <div class="pstat"><div class="pstat-v" id="p-chats">0</div><div class="pstat-l" data-k="stChats">чатов</div></div>
+          <div class="pstat"><div class="pstat-v" id="p-docs">0</div><div class="pstat-l" data-k="stDocs">документов</div></div>
+          <div class="pstat"><div class="pstat-v" id="p-cc">MNE</div><div class="pstat-l" data-k="stCountry">страна</div></div>
+        </div>
+
+        <div class="ppbanner">
+          <div class="ppbanner-ico">⚖️</div>
+          <div class="ppbanner-info">
+            <strong>Themis Pro</strong>
+            <span data-k="proDesc">Безлимитные чаты · Все юрисдикции · Приоритет</span>
+          </div>
+          <button class="pupgrade">9€/мес</button>
+        </div>
+
+        <div class="psec">
+          <div class="psec-lbl" data-k="settingsLbl">Настройки</div>
+          <div class="pcard">
+            <div class="prow" onclick="askCountry()">
+              <div class="prow-ico">🌍</div>
+              <div class="prow-txt"><strong data-k="cSet">Страна / юрисдикция</strong><span id="p-crow">Черногория</span></div>
+              <div class="prow-r">›</div>
+            </div>
+            <div class="prow" onclick="toggleLangP()">
+              <div class="prow-ico">🌐</div>
+              <div class="prow-txt"><strong data-k="lSet">Язык интерфейса</strong><span id="p-lang-lbl">Русский</span></div>
+              <div class="prow-r">›</div>
+            </div>
+            <div class="prow">
+              <div class="prow-ico">🔔</div>
+              <div class="prow-txt"><strong data-k="nSet">Уведомления</strong><span data-k="nOn">Включены</span></div>
+              <div class="prow-r">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="psec">
+          <div class="psec-lbl" data-k="supportLbl">Поддержка</div>
+          <div class="pcard">
+            <div class="prow"><div class="prow-ico">💬</div><div class="prow-txt"><strong data-k="csLbl">Написать в поддержку</strong><span data-k="csTime">Ответим в течение часа</span></div><div class="prow-r">›</div></div>
+            <div class="prow"><div class="prow-ico">📋</div><div class="prow-txt"><strong data-k="tosLbl">Пользовательское соглашение</strong></div><div class="prow-r">›</div></div>
+            <div class="prow"><div class="prow-ico">🔒</div><div class="prow-txt"><strong data-k="ppLbl">Политика конфиденциальности</strong></div><div class="prow-r">›</div></div>
+          </div>
+        </div>
+
+        <div class="pver">Themis v3.0 · <span data-k="pver">Ваши права под защитой</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tbar">
+    <div class="ti on" id="ti-home" onclick="switchTab('home')"><div class="ti-ico">🏛</div><div class="ti-lbl" data-k="tHome">Главная</div></div>
+    <div class="ti" id="ti-chat" onclick="switchTab('chat')"><div class="ti-ico">⚖️</div><div class="ti-lbl" data-k="tChat">Чат</div></div>
+    <div class="ti" id="ti-history" onclick="switchTab('history')"><div class="ti-ico">📋</div><div class="ti-lbl" data-k="tHist">История</div></div>
+    <div class="ti" id="ti-profile" onclick="switchTab('profile')"><div class="ti-ico">👤</div><div class="ti-lbl" data-k="tProf">Профиль</div></div>
+  </div>
+</div>
+
+<!-- ESCALATE MODAL -->
+<div class="modal-wrap" id="esc-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 data-k="escTitle">Нужен живой адвокат?</h3>
+    <p data-k="escDesc">Themis рекомендует специалиста для вашей ситуации. Партнёры в регионе:</p>
+    <div class="modal-lawyers">
+      <div class="lwcard"><div class="lwav">A</div><div class="lwinfo"><div class="lwname">Ana Petrović</div><div class="lwsub">Трудовое право · Подгорица</div></div><div class="lwprice">50€/час</div></div>
+      <div class="lwcard"><div class="lwav">M</div><div class="lwinfo"><div class="lwname">Marko Nikolić</div><div class="lwsub">Гражданское право · Бар</div></div><div class="lwprice">40€/час</div></div>
+      <div class="lwcard"><div class="lwav">J</div><div class="lwinfo"><div class="lwname">Jelena Vuković</div><div class="lwsub">Семейное право · Котор</div></div><div class="lwprice">45€/час</div></div>
+    </div>
+    <button class="modal-close" onclick="closeModal()" data-k="escClose">Закрыть</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 /**
  * Themis — главный модуль, инициализация
  */
-import { storage } from './storage.js';
+import { storage, setTgId } from './storage.js';
 import { TR } from './i18n.js';
 import { applyLang, t, esc, showToast, grow, setUILang } from './ui.js';
 import {
@@ -12,17 +12,20 @@ import {
 
 /* ── Telegram ── */
 const tg = window.Telegram?.WebApp;
+let tgUser = null;
 if (tg) {
   tg.ready();
   tg.expand();
   tg.setHeaderColor('#09090d');
   tg.setBackgroundColor('#09090d');
-  const u = tg.initDataUnsafe?.user;
-  if (u) {
-    const name = u.first_name + (u.last_name ? ' ' + u.last_name : '');
+  tgUser = tg.initDataUnsafe?.user;
+  if (tgUser) {
+    const name = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
     document.getElementById('p-name').textContent = name;
-    const initials = (u.first_name?.[0] || 'Θ').toUpperCase();
+    const initials = (tgUser.first_name?.[0] || 'Θ').toUpperCase();
     document.getElementById('p-av').textContent = initials;
+    // Set tgId for server sync
+    setTgId(String(tgUser.id));
   }
 }
 
@@ -266,4 +269,23 @@ document.querySelectorAll('.lopt').forEach(b => b.classList.toggle('on', b.datas
 if (storage.isOnboarded()) {
   document.getElementById('s-ob').classList.remove('on');
   document.getElementById('s-main').classList.add('on');
+}
+
+// Phase 2: серверная синхронизация
+if (tgUser) {
+  storage.syncUser({
+    firstName: tgUser.first_name || '',
+    lastName: tgUser.last_name || '',
+  }).then(() => {
+    storage.checkProFromServer().then(status => {
+      if (status?.is_pro) {
+        document.querySelector('.pplan span').textContent = 'Pro';
+      }
+    });
+    storage.syncFromServer().then(() => {
+      renderHomeRecent();
+      renderHistory();
+      updateStats();
+    });
+  });
 }

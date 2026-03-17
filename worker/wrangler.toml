@@ -4,7 +4,7 @@ compatibility_date = "2024-09-23"
 
 [vars]
 ALLOWED_ORIGIN = "https://flythecode.github.io"
-BACKEND_URL = "https://themis-backend.up.railway.app"
+BACKEND_URL = "https://themis-production-6f7d.up.railway.app"
 UPGRADE_URL = "https://t.me/ThemisLegalBot?start=upgrade"
 
 [[kv_namespaces]]

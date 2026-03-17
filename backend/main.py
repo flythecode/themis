@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routers import pdf, payments, users
+from routers import pdf, payments, users, chats
 import os
 import asyncio
 import logging
@@ -82,7 +82,14 @@ async def start_bot():
 
 @asynccontextmanager
 async def lifespan(app):
-    # Запускаем бота при старте сервера
+    # Создаём таблицы в БД
+    from database import engine, Base
+    from models import User, Chat
+    if engine:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables created")
+    # Запускаем бота
     asyncio.create_task(start_bot())
     yield
 
@@ -110,6 +117,7 @@ async def verify_internal_token(request, call_next):
 app.include_router(pdf.router, prefix="/pdf")
 app.include_router(payments.router, prefix="/payments")
 app.include_router(users.router, prefix="/users")
+app.include_router(chats.router, prefix="/chats")
 
 
 @app.get("/health")

@@ -67,14 +67,37 @@ async def start_bot():
             "Перезапустите приложение чтобы увидеть изменения."
         )
 
+    # /app — быстро открыть Mini App
+    async def cmd_app(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                text="⚖️ Открыть Themis",
+                web_app=WebAppInfo(url=webapp_url)
+            )
+        ]])
+        await update.message.reply_text("Открываю Themis:", reply_markup=keyboard)
+
     app_bot = ApplicationBuilder().token(bot_token).build()
     app_bot.add_handler(CommandHandler("start", cmd_start))
+    app_bot.add_handler(CommandHandler("app", cmd_app))
     app_bot.add_handler(CommandHandler("pro", cmd_pro))
     app_bot.add_handler(PreCheckoutQueryHandler(pre_checkout))
     app_bot.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment))
 
+    # Устанавливаем кнопку Menu
+    from telegram import BotCommand, MenuButtonWebApp
     logger.info("Themis Bot starting...")
     await app_bot.initialize()
+
+    await app_bot.bot.set_my_commands([
+        BotCommand("start", "Начать"),
+        BotCommand("app", "Открыть Themis"),
+        BotCommand("pro", "Подписка Pro"),
+    ])
+    await app_bot.bot.set_chat_menu_button(
+        menu_button=MenuButtonWebApp(text="⚖️ Themis", web_app=WebAppInfo(url=webapp_url))
+    )
+
     await app_bot.start()
     await app_bot.updater.start_polling()
     logger.info("Themis Bot started successfully")

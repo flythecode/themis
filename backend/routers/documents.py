@@ -7,8 +7,6 @@ import httpx
 
 router = APIRouter()
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-
 
 class SendDocRequest(BaseModel):
     tg_id: str
@@ -39,6 +37,7 @@ class ThemisPDF(FPDF):
 
 @router.post("/send-pdf")
 async def send_pdf(req: SendDocRequest):
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
     if not BOT_TOKEN:
         return {"error": "Bot not configured"}
 

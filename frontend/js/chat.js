@@ -404,31 +404,37 @@ export async function downloadLastDoc() {
   if (!lastDocText) return;
   const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
 
-  if (!tgId) {
-    navigator.clipboard?.writeText(lastDocText);
-    showToast(lang === 'ru' ? 'Скопировано в буфер' : 'Copied to clipboard');
-    return;
+  if (tgId) {
+    // Telegram — отправляем PDF через бота
+    showToast(lang === 'ru' ? 'Отправляю PDF...' : 'Sending PDF...');
+    try {
+      const { sendDocumentPDF } = await import('./api.js');
+      const ok = await sendDocumentPDF({
+        tgId: String(tgId),
+        text: lastDocText,
+        title: lang === 'ru' ? 'Документ' : 'Document',
+        mode
+      });
+      if (ok) {
+        showToast(lang === 'ru' ? 'PDF отправлен в бот ✓' : 'PDF sent to bot ✓');
+        document.getElementById('dl-banner').classList.remove('on');
+        return;
+      }
+    } catch {}
   }
 
-  showToast(lang === 'ru' ? 'Отправляю PDF...' : 'Sending PDF...');
-  try {
-    const { sendDocumentPDF } = await import('./api.js');
-    const ok = await sendDocumentPDF({
-      tgId: String(tgId),
-      text: lastDocText,
-      title: lang === 'ru' ? 'Документ' : 'Document',
-      mode
-    });
-    if (ok) {
-      showToast(lang === 'ru' ? 'PDF отправлен в бот ✓' : 'PDF sent to bot ✓');
-      document.getElementById('dl-banner').classList.remove('on');
-    } else {
-      throw new Error('fail');
-    }
-  } catch {
-    navigator.clipboard?.writeText(lastDocText);
-    showToast(lang === 'ru' ? 'Ошибка. Текст скопирован в буфер' : 'Error. Text copied to clipboard');
-  }
+  // Не Telegram или ошибка — скачиваем как файл напрямую
+  const blob = new Blob([lastDocText], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `themis_${lang === 'ru' ? 'документ' : 'document'}_${new Date().toISOString().slice(0, 10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(lang === 'ru' ? 'Документ скачан ✓' : 'Document downloaded ✓');
+  document.getElementById('dl-banner').classList.remove('on');
 }
 
 /* ── Keyboard ── */

@@ -257,6 +257,56 @@ window.closeModal = function(e) {
   }
 };
 
+/* ── Auth (non-Telegram) ── */
+const isTelegram = !!tgUser;
+
+function authLogin() {
+  const name = document.getElementById('auth-name').value.trim();
+  const email = document.getElementById('auth-email').value.trim();
+  if (!name) { document.getElementById('auth-name').focus(); return; }
+  // Save user info locally
+  const userId = 'web_' + Date.now();
+  localStorage.setItem('th_web_user', JSON.stringify({ id: userId, name, email }));
+  setTgId(userId);
+  document.getElementById('p-name').textContent = name;
+  document.getElementById('p-av').textContent = name[0].toUpperCase();
+  finishAuth();
+}
+window.authLogin = authLogin;
+
+function authSkip() {
+  const userId = 'anon_' + Date.now();
+  localStorage.setItem('th_web_user', JSON.stringify({ id: userId, name: 'Guest', email: '' }));
+  setTgId(userId);
+  document.getElementById('p-name').textContent = 'Guest';
+  finishAuth();
+}
+window.authSkip = authSkip;
+
+function finishAuth() {
+  document.getElementById('s-auth').classList.remove('on');
+  if (storage.isOnboarded()) {
+    document.getElementById('s-main').classList.add('on');
+  } else {
+    document.getElementById('s-ob').classList.add('on');
+  }
+}
+
+/* ── PWA Install ── */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('pwa-install')?.classList.add('on');
+});
+window.pwaInstall = async function() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('pwa-install')?.classList.remove('on');
+};
+
 /* ── Boot ── */
 applyLang(initialLang);
 updateCountryUI();
@@ -265,14 +315,13 @@ updateStats();
 document.querySelectorAll('.ob-lbtn').forEach(b => b.classList.toggle('on', b.dataset.lang === initialLang));
 document.querySelectorAll('.lopt').forEach(b => b.classList.toggle('on', b.dataset.lang === initialLang));
 
-// Пропустить онбординг если уже проходил
-if (storage.isOnboarded()) {
-  document.getElementById('s-ob').classList.remove('on');
-  document.getElementById('s-main').classList.add('on');
-}
-
-// Phase 2: серверная синхронизация
-if (tgUser) {
+if (isTelegram) {
+  // Telegram Mini App — пропускаем auth
+  if (storage.isOnboarded()) {
+    document.getElementById('s-ob').classList.remove('on');
+    document.getElementById('s-main').classList.add('on');
+  }
+  // Серверная синхронизация
   storage.syncUser({
     firstName: tgUser.first_name || '',
     lastName: tgUser.last_name || '',
@@ -288,4 +337,20 @@ if (tgUser) {
       updateStats();
     });
   });
+} else {
+  // Не в Telegram — проверяем есть ли сохранённый пользователь
+  const webUser = JSON.parse(localStorage.getItem('th_web_user') || 'null');
+  if (webUser) {
+    setTgId(webUser.id);
+    document.getElementById('p-name').textContent = webUser.name;
+    document.getElementById('p-av').textContent = (webUser.name?.[0] || 'G').toUpperCase();
+    if (storage.isOnboarded()) {
+      document.getElementById('s-ob').classList.remove('on');
+      document.getElementById('s-main').classList.add('on');
+    }
+  } else {
+    // Показываем auth экран
+    document.getElementById('s-ob').classList.remove('on');
+    document.getElementById('s-auth').classList.add('on');
+  }
 }

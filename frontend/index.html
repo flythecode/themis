@@ -4,12 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Themis — Legal AI</title>
+<meta name="description" content="AI-юрист: анализ документов, составление претензий, юридические советы">
+<meta name="theme-color" content="#09090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+
+<!-- ═══════════ AUTH (non-Telegram) ═══════════ -->
+<div class="scr" id="s-auth">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="ob-theta">Θ</div>
+      <div class="ob-tagline">Themis · Legal AI</div>
+    </div>
+    <div class="auth-title">Войти в Themis</div>
+    <input class="auth-input" id="auth-name" type="text" placeholder="Ваше имя">
+    <input class="auth-input" id="auth-email" type="email" placeholder="Email">
+    <button class="auth-btn" onclick="authLogin()">Войти</button>
+    <a class="auth-skip" onclick="authSkip()">Продолжить без регистрации</a>
+  </div>
+</div>
 
 <!-- ═══════════ ONBOARDING ═══════════ -->
 <div class="scr on" id="s-ob">
@@ -128,6 +149,15 @@
             </div>
             <div class="mrow-arr">›</div>
           </div>
+        </div>
+
+        <div class="pwa-install" id="pwa-install" onclick="pwaInstall()">
+          <div style="font-size:28px">📲</div>
+          <div class="pwa-install-txt">
+            <strong>Установить Themis</strong>
+            <span>Добавить на домашний экран</span>
+          </div>
+          <button class="pwa-install-btn">Установить</button>
         </div>
 
         <div class="slabel" data-k="recentLabel">Недавние чаты</div>
@@ -264,5 +294,10 @@
 <div class="toast" id="toast"></div>
 
 <script type="module" src="js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
 </body>
 </html>

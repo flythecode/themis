@@ -353,32 +353,37 @@ export function doStar(btn, enc) {
 }
 
 /* ── Download document ── */
-export function downloadDoc(enc) {
+export async function downloadDoc(enc) {
   const text = decodeURIComponent(enc);
-  const filename = `themis_${lang === 'ru' ? 'документ' : 'document'}_${new Date().toISOString().slice(0, 10)}.txt`;
+  const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
 
-  // В Telegram WebView blob скачивание не работает — используем data URI
-  const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
-  const a = document.createElement('a');
-  a.href = dataUri;
-  a.download = filename;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
+  if (!tgId) {
+    // Не в Telegram — копируем в буфер
+    navigator.clipboard?.writeText(text);
+    showToast(lang === 'ru' ? 'Скопировано в буфер' : 'Copied to clipboard');
+    return;
+  }
 
-  // Fallback: если скачивание не сработало (Telegram Mini App), копируем в буфер
-  setTimeout(() => {
-    document.body.removeChild(a);
-  }, 100);
+  showToast(lang === 'ru' ? 'Отправляю PDF в чат...' : 'Sending PDF to chat...');
 
-  // Всегда копируем текст в буфер как запасной вариант
-  navigator.clipboard?.writeText(text).then(() => {
-    showToast(lang === 'ru' ? 'Документ скопирован в буфер' : 'Document copied to clipboard');
-  }).catch(() => {
-    showToast(lang === 'ru' ? 'Документ скачан' : 'Document downloaded');
-  });
+  try {
+    const { sendDocumentPDF } = await import('./api.js');
+    const ok = await sendDocumentPDF({
+      tgId: String(tgId),
+      text,
+      title: lang === 'ru' ? 'Документ Themis' : 'Themis Document',
+      mode
+    });
+    if (ok) {
+      showToast(lang === 'ru' ? 'PDF отправлен в бот ✓' : 'PDF sent to bot ✓');
+    } else {
+      throw new Error('send failed');
+    }
+  } catch {
+    // Fallback — копируем в буфер
+    navigator.clipboard?.writeText(text);
+    showToast(lang === 'ru' ? 'Ошибка. Текст скопирован в буфер' : 'Error. Text copied to clipboard');
+  }
 }
 
 /* ── Keyboard ── */

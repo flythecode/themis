@@ -47,10 +47,11 @@ export default {
     const userId = _userId || 'anon';
 
     // Backend routes: proxy POST to FastAPI
-    if (['pdf', 'docx', 'users', 'chats'].includes(_route)) {
+    if (['pdf', 'docx', 'users', 'chats', 'documents'].includes(_route)) {
       let path = `/${_route}`;
       if (_route === 'users') path = body._path || '/users/sync';
       if (_route === 'chats') path = body._path || '/chats/save';
+      if (_route === 'documents') path = body._path || '/documents/send-pdf';
 
       const { _path, _route: _, _userId: __, _isPro: ___, ...cleanPayload } = body;
       const resp = await fetch(`${env.BACKEND_URL}${path}`, {

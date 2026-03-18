@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routers import pdf, payments, users, chats
+from routers import pdf, payments, users, chats, documents
 import os
 import asyncio
 import logging
@@ -118,6 +118,7 @@ app.include_router(pdf.router, prefix="/pdf")
 app.include_router(payments.router, prefix="/payments")
 app.include_router(users.router, prefix="/users")
 app.include_router(chats.router, prefix="/chats")
+app.include_router(documents.router, prefix="/documents")
 
 
 @app.get("/health")

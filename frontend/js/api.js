@@ -93,3 +93,23 @@ export async function deleteServerChat(tgId, chatId) {
     return resp.ok;
   } catch { return false; }
 }
+
+export async function sendDocumentPDF({ tgId, text, title, mode }) {
+  try {
+    const resp = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        _route: 'documents',
+        _path: '/documents/send-pdf',
+        tg_id: tgId,
+        text,
+        title,
+        mode
+      })
+    });
+    if (!resp.ok) return false;
+    const data = await resp.json();
+    return data.status === 'ok';
+  } catch { return false; }
+}

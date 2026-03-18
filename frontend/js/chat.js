@@ -355,16 +355,30 @@ export function doStar(btn, enc) {
 /* ── Download document ── */
 export function downloadDoc(enc) {
   const text = decodeURIComponent(enc);
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+  const filename = `themis_${lang === 'ru' ? 'документ' : 'document'}_${new Date().toISOString().slice(0, 10)}.txt`;
+
+  // В Telegram WebView blob скачивание не работает — используем data URI
+  const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `themis_${lang === 'ru' ? 'документ' : 'document'}_${new Date().toISOString().slice(0, 10)}.txt`;
+  a.href = dataUri;
+  a.download = filename;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast(lang === 'ru' ? 'Документ скачан' : 'Document downloaded');
+
+  // Fallback: если скачивание не сработало (Telegram Mini App), копируем в буфер
+  setTimeout(() => {
+    document.body.removeChild(a);
+  }, 100);
+
+  // Всегда копируем текст в буфер как запасной вариант
+  navigator.clipboard?.writeText(text).then(() => {
+    showToast(lang === 'ru' ? 'Документ скопирован в буфер' : 'Document copied to clipboard');
+  }).catch(() => {
+    showToast(lang === 'ru' ? 'Документ скачан' : 'Document downloaded');
+  });
 }
 
 /* ── Keyboard ── */

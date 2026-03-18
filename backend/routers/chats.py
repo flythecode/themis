@@ -86,7 +86,7 @@ async def save_chat(req: ChatSaveRequest, db: AsyncSession = Depends(get_db)):
 @router.delete("/{tg_id}/{chat_id}")
 async def delete_chat(tg_id: str, chat_id: str, db: AsyncSession = Depends(get_db)):
     await db.execute(
-        delete(Chat).where(Chat.id == chat_id, Chat.user_tg_id == tg_id)
+        delete(Chat).where((Chat.id == chat_id) & (Chat.user_tg_id == tg_id))
     )
     await db.commit()
     return {"status": "ok"}
@@ -95,7 +95,7 @@ async def delete_chat(tg_id: str, chat_id: str, db: AsyncSession = Depends(get_d
 @router.post("/{tg_id}/{chat_id}/star")
 async def toggle_star(tg_id: str, chat_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Chat).where(Chat.id == chat_id, Chat.user_tg_id == tg_id)
+        select(Chat).where((Chat.id == chat_id) & (Chat.user_tg_id == tg_id))
     )
     chat = result.scalar_one_or_none()
     if not chat:

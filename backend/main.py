@@ -121,8 +121,11 @@ app = FastAPI(title="Themis Backend", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://themis-proxy.*.workers.dev"],
-    allow_methods=["POST", "GET"],
+    allow_origins=[
+        "https://themis-proxy.flythecode.workers.dev",
+        "https://flythecode.github.io",
+    ],
+    allow_methods=["POST", "GET", "DELETE"],
     allow_headers=["Content-Type", "X-Internal-Token"],
 )
 

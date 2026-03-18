@@ -251,7 +251,6 @@ function updateStats() {
 }
 
 /* ── Modal ── */
-window.openEsc = () => document.getElementById('esc-modal').classList.add('on');
 window.closeModal = function(e) {
   if (!e || e.target === document.getElementById('esc-modal') || e.currentTarget?.classList?.contains('modal-close')) {
     document.getElementById('esc-modal').classList.remove('on');

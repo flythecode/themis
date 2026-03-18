@@ -353,6 +353,22 @@ html,body { height:100%; background:var(--coal); color:var(--iv); font-family:'D
 .rtok { background:rgba(72,180,156,.14); color:var(--teal); }
 
 /* Input area */
+/* Download banner */
+.dl-banner {
+  display:none; padding:8px 12px; flex-shrink:0;
+  background:var(--coal2); border-top:1px solid var(--b2);
+}
+.dl-banner.on { display:flex; }
+.dl-btn {
+  width:100%; padding:14px; border:none; border-radius:var(--r);
+  background:var(--gold); color:var(--coal);
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:opacity .15s, transform .1s;
+  animation:fu .22s var(--ease);
+}
+.dl-btn:active { opacity:.88; transform:scale(.99); }
+
 .inpwrap {
   padding:9px 12px 14px; border-top:1px solid var(--b3);
   background:var(--coal); flex-shrink:0;

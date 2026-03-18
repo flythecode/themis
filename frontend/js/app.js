@@ -6,8 +6,8 @@ import { TR } from './i18n.js';
 import { applyLang, t, esc, showToast, grow, setUILang } from './ui.js';
 import {
   initChat, quickChat, loadHistChat, sendMsg, onKey, triggerAtt,
-  onFile, clearImgPrev, toggleMic, doCopy, doStar, downloadDoc, setLangChat,
-  setCountryChat, updateCountryUI, restoreState, getMode, getLang, getCountry
+  onFile, clearImgPrev, toggleMic, doCopy, doStar, downloadDoc, downloadLastDoc,
+  setLangChat, setCountryChat, updateCountryUI, restoreState, getMode, getLang, getCountry
 } from './chat.js';
 
 /* ── Telegram ── */
@@ -39,6 +39,7 @@ window.themis = {
   doCopy,
   doStar,
   downloadDoc,
+  downloadLastDoc,
   openEsc: () => document.getElementById('esc-modal').classList.add('on'),
 };
 

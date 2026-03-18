@@ -10,6 +10,7 @@ let lang = 'ru', country = 'Черногория', mode = 'analyze';
 let conv = [], busy = false, pendingImg = null;
 let recording = false, recognizer = null;
 let activeChatId = null;
+let lastDocText = null;
 
 const newId = () => 'c_' + Date.now();
 
@@ -45,8 +46,9 @@ export function updateCountryUI() {
 
 /* ── Chat init ── */
 export function initChat(fresh) {
-  if (fresh) { conv = []; activeChatId = newId(); pendingImg = null; }
+  if (fresh) { conv = []; activeChatId = newId(); pendingImg = null; lastDocText = null; }
   initChatUI();
+  document.getElementById('dl-banner')?.classList.remove('on');
   if (fresh) {
     document.getElementById('msgs').innerHTML = '';
     clearImgPrev();
@@ -298,6 +300,16 @@ export async function sendMsg() {
     conv.push({ role: 'assistant', content: reply });
     addBubble('b', reply, true);
 
+    // Показать баннер скачивания если это финальный документ
+    const isFinalDoc = reply.includes('---ДОКУМЕНТ---') || reply.includes('---DOCUMENT---');
+    const dlBanner = document.getElementById('dl-banner');
+    if (isFinalDoc && mode === 'generate') {
+      lastDocText = reply.replace(/---ДОКУМЕНТ---|---DOCUMENT---/g, '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/\[.*?\]/g, '').trim();
+      dlBanner.classList.add('on');
+    } else {
+      dlBanner.classList.remove('on');
+    }
+
     if (mode === 'generate') {
       const st = storage.getState();
       st.docs = (st.docs || 0) + 1;
@@ -383,6 +395,38 @@ export async function downloadDoc(enc) {
   } catch {
     // Fallback — копируем в буфер
     navigator.clipboard?.writeText(text);
+    showToast(lang === 'ru' ? 'Ошибка. Текст скопирован в буфер' : 'Error. Text copied to clipboard');
+  }
+}
+
+/* ── Download last document ── */
+export async function downloadLastDoc() {
+  if (!lastDocText) return;
+  const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+
+  if (!tgId) {
+    navigator.clipboard?.writeText(lastDocText);
+    showToast(lang === 'ru' ? 'Скопировано в буфер' : 'Copied to clipboard');
+    return;
+  }
+
+  showToast(lang === 'ru' ? 'Отправляю PDF...' : 'Sending PDF...');
+  try {
+    const { sendDocumentPDF } = await import('./api.js');
+    const ok = await sendDocumentPDF({
+      tgId: String(tgId),
+      text: lastDocText,
+      title: lang === 'ru' ? 'Документ' : 'Document',
+      mode
+    });
+    if (ok) {
+      showToast(lang === 'ru' ? 'PDF отправлен в бот ✓' : 'PDF sent to bot ✓');
+      document.getElementById('dl-banner').classList.remove('on');
+    } else {
+      throw new Error('fail');
+    }
+  } catch {
+    navigator.clipboard?.writeText(lastDocText);
     showToast(lang === 'ru' ? 'Ошибка. Текст скопирован в буфер' : 'Error. Text copied to clipboard');
   }
 }

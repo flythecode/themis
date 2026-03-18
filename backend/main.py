@@ -124,3 +124,17 @@ app.include_router(documents.router, prefix="/documents")
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/debug/env")
+async def debug_env():
+    """Временный — удалить после отладки."""
+    return {
+        "BOT_TOKEN_set": bool(os.environ.get("BOT_TOKEN")),
+        "BOT_TOKEN_len": len(os.environ.get("BOT_TOKEN", "")),
+        "ANTHROPIC_KEY_set": bool(os.environ.get("ANTHROPIC_API_KEY")),
+        "DATABASE_URL_set": bool(os.environ.get("DATABASE_URL")),
+        "INTERNAL_TOKEN_set": bool(os.environ.get("INTERNAL_TOKEN")),
+        "WEBAPP_URL": os.environ.get("WEBAPP_URL", ""),
+        "all_keys": [k for k in os.environ.keys() if not k.startswith("_")],
+    }

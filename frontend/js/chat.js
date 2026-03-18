@@ -204,7 +204,8 @@ export function addBubble(role, text, fmtFlag, save = true) {
     const acts = document.createElement('div');
     acts.className = 'msg-act-row';
     const showLawyer = mode === 'advise' || mode === 'analyze';
-    const showDownload = mode === 'generate';
+    const isFinalDoc = text.includes('---ДОКУМЕНТ---') || text.includes('---DOCUMENT---');
+    const showDownload = mode === 'generate' && isFinalDoc;
     acts.innerHTML =
       `<div class="mact" onclick="window.themis.doCopy(this,'${encodeURIComponent(plain)}')">${t('copyTxt')}</div>` +
       `<div class="mact" onclick="window.themis.doStar(this,'${encodeURIComponent(text)}')">${t('starTxt')}</div>` +
@@ -354,7 +355,7 @@ export function doStar(btn, enc) {
 
 /* ── Download document ── */
 export async function downloadDoc(enc) {
-  const text = decodeURIComponent(enc);
+  const text = decodeURIComponent(enc).replace(/---ДОКУМЕНТ---|---DOCUMENT---/g, '').trim();
   const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
 
   if (!tgId) {

@@ -13,6 +13,8 @@ export function esc(s) {
 
 export function fmt(txt) {
   txt = esc(txt);
+  // Убираем метку финального документа
+  txt = txt.replace(/---ДОКУМЕНТ---|---DOCUMENT---/g, '');
   const hr = _lang === 'ru' ? 'Высокий риск' : 'High risk';
   const mr = _lang === 'ru' ? 'Средний риск' : 'Medium risk';
   txt = txt.replace(/\[ВЫСОКИЙ\]|\[HIGH\]/g,   `<span class="rtag rth">▲ ${hr}</span>`);

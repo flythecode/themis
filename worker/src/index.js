@@ -2,7 +2,15 @@ const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 
 export default {
   async fetch(request, env) {
-    const allowed = env.ALLOWED_ORIGIN;
+    const origin = request.headers.get('Origin') || '';
+    const allowedOrigins = [
+      env.ALLOWED_ORIGIN,
+      'https://localhost',
+      'capacitor://localhost',
+      'http://localhost',
+      'http://localhost:8080',
+    ];
+    const allowed = allowedOrigins.includes(origin) ? origin : env.ALLOWED_ORIGIN;
     const url = new URL(request.url);
 
     // CORS preflight
@@ -43,7 +51,7 @@ export default {
       return new Response('Invalid JSON', { status: 400 });
     }
 
-    const { _userId, _isPro, _route, ...payload } = body;
+    const { _userId, _isPro, _route, _plan, ...payload } = body;
     const userId = _userId || 'anon';
 
     // Backend routes: proxy POST to FastAPI
@@ -70,7 +78,7 @@ export default {
     }
 
     // Rate limiting (only for chat requests)
-    const plan = body._plan || 'free';
+    const plan = _plan || 'free';
     const rlKey = `rl:${userId}`;
     const current = parseInt(await env.KV.get(rlKey) || '0');
     const limit = plan === 'business' ? 200 : plan === 'pro' ? 50 : 10;

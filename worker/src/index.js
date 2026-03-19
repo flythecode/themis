@@ -70,9 +70,10 @@ export default {
     }
 
     // Rate limiting (only for chat requests)
+    const plan = body._plan || 'free';
     const rlKey = `rl:${userId}`;
     const current = parseInt(await env.KV.get(rlKey) || '0');
-    const limit = _isPro ? 1000 : 10;
+    const limit = plan === 'business' ? 200 : plan === 'pro' ? 50 : 10;
 
     if (current >= limit) {
       return new Response(
@@ -81,7 +82,7 @@ export default {
       );
     }
 
-    await env.KV.put(rlKey, String(current + 1), { expirationTtl: 3600 });
+    await env.KV.put(rlKey, String(current + 1), { expirationTtl: 86400 });
 
     // Default: чат → Anthropic напрямую
     const resp = await fetch(ANTHROPIC_URL, {

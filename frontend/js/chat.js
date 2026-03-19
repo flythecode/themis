@@ -293,7 +293,9 @@ export async function sendMsg() {
       system: TR[lang]['sys_' + mode](country),
       messages: msgs,
       userId,
-      isPro: storage.isPro()
+      isPro: storage.isPro(),
+      plan: storage.getPlan(),
+      mode
     });
 
     hideTyping();

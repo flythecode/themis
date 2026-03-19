@@ -4,19 +4,28 @@
 
 const WORKER_URL = 'https://themis-proxy.flythecode.workers.dev';
 
-export async function callClaude({ system, messages, userId, isPro = false }) {
+export async function callClaude({ system, messages, userId, isPro = false, plan = 'free', mode = 'analyze' }) {
+  const useSearch = plan !== 'free' && (mode === 'analyze' || mode === 'advise');
+
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1500,
+    system,
+    messages,
+    _userId: userId,
+    _isPro: isPro,
+    _plan: plan,
+    _route: 'chat'
+  };
+
+  if (useSearch) {
+    body.tools = [{ type: 'web_search_20250305' }];
+  }
+
   const resp = await fetch(WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1200,
-      system,
-      messages,
-      _userId: userId,
-      _isPro: isPro,
-      _route: 'chat'
-    })
+    body: JSON.stringify(body)
   });
 
   if (resp.status === 429) {
@@ -27,6 +36,13 @@ export async function callClaude({ system, messages, userId, isPro = false }) {
   if (!resp.ok) throw new Error(`API error: ${resp.status}`);
 
   const data = await resp.json();
+  // Web search может вернуть несколько content блоков — собираем текст
+  if (Array.isArray(data.content)) {
+    return data.content
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('\n') || '';
+  }
   return data.content?.[0]?.text || '';
 }
 

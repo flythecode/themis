@@ -12,6 +12,7 @@ class User(Base):
     last_name = Column(String, default="")
     country = Column(String, default="Черногория")
     lang = Column(String, default="ru")
+    plan = Column(String, default="free")  # free | pro | business
     is_pro = Column(Boolean, default=False)
     pro_until = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

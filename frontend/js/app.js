@@ -328,7 +328,8 @@ if (isTelegram) {
   }).then(() => {
     storage.checkProFromServer().then(status => {
       if (status?.is_pro) {
-        document.querySelector('.pplan span').textContent = 'Pro';
+        const planNames = { pro: 'Pro', business: 'Business' };
+        document.querySelector('.pplan span').textContent = planNames[status.plan] || 'Pro';
       }
     });
     storage.syncFromServer().then(() => {

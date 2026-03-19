@@ -27,13 +27,16 @@ async def get_user_status(tg_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.tg_id == tg_id))
     user = result.scalar_one_or_none()
     if not user:
-        return {"is_pro": False, "requests_left": 10}
+        return {"is_pro": False, "plan": "free", "daily_limit": 10, "requests_left": 10}
 
     now = datetime.now(timezone.utc)
     is_pro = user.is_pro and user.pro_until and user.pro_until > now
+    plan = user.plan if is_pro else "free"
+    limits = {"free": 10, "pro": 50, "business": 200}
     return {
         "is_pro": is_pro,
-        "requests_left": 1000 if is_pro else 10,
+        "plan": plan,
+        "daily_limit": limits.get(plan, 10),
         "pro_until": user.pro_until.isoformat() if user.pro_until else None,
         "country": user.country,
         "lang": user.lang,

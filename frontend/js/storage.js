@@ -77,8 +77,13 @@ export const storage = {
   getCountry: () => ls.get('country') || 'Черногория',
   setCountry: c => ls.set('country', c),
 
-  // ── Pro-статус ──
-  isPro: () => ls.get('pro') === true,
+  // ── План и Pro-статус ──
+  getPlan: () => ls.get('plan') || 'free', // free | pro | business
+  setPlan: p => ls.set('plan', p),
+  isPro: () => {
+    const p = ls.get('plan') || 'free';
+    return p === 'pro' || p === 'business';
+  },
   setPro: val => ls.set('pro', val),
 
   checkProFromServer: async () => {
@@ -87,25 +92,34 @@ export const storage = {
       const status = await getProStatus(_tgId);
       if (status) {
         ls.set('pro', status.is_pro);
+        if (status.plan) ls.set('plan', status.plan);
         return status;
       }
     } catch {}
     return null;
   },
 
-  // ── Счётчик запросов (Free план) ──
+  // ── Счётчик запросов по планам ──
+  // Free: 10/день, Pro: 50/день, Business: 200/день
   getUsage: () => ls.get('usage') || { count: 0, resetAt: 0 },
+  getDailyLimit: () => {
+    const plan = storage.getPlan();
+    if (plan === 'business') return 200;
+    if (plan === 'pro') return 50;
+    return 10;
+  },
   bumpUsage: () => {
-    if (storage.isPro()) return { ok: true, remaining: 999 };
+    const limit = storage.getDailyLimit();
     const u = storage.getUsage();
     const now = Date.now();
+    // Сброс каждые 24 часа
     if (now > u.resetAt) {
-      ls.set('usage', { count: 1, resetAt: now + 3600000 });
-      return { ok: true, remaining: 9 };
+      ls.set('usage', { count: 1, resetAt: now + 86400000 });
+      return { ok: true, remaining: limit - 1 };
     }
-    if (u.count >= 10) return { ok: false, remaining: 0 };
+    if (u.count >= limit) return { ok: false, remaining: 0 };
     ls.set('usage', { ...u, count: u.count + 1 });
-    return { ok: true, remaining: 9 - u.count };
+    return { ok: true, remaining: limit - u.count - 1 };
   },
 
   // ── Сохранённые сообщения ──
